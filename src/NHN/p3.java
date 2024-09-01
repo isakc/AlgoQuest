@@ -3,54 +3,46 @@ package NHN;
 import java.util.*;
 
 public class p3 {
-    public static void main(String[] args) {
-        int[] sid = {201820793, 201969011, 202020202, 202299999, 202200000, 202232134, 202310039};
-        int[] sfirst = {201820793, 202020202, 202200000, 202232134, 202310039};
-
-        System.out.println( solution(sid, sfirst) );
-    }
-
     public static int solution(int[] sid, int[] sfirst) {
-        // Sort student IDs and IDs of students who want the lower bunk
+        // sid와 sfirst를 정렬
         Arrays.sort(sid);
         Arrays.sort(sfirst);
 
         int n = sid.length;
-        int k = (n + 3) / 4; // Number of rooms
+        int rooms = (n + 3) / 4;  // 방의 수는 n/4의 올림 값
+        int firstIdx = 0; // sfirst에서의 인덱스
+        int sidIdx = 0;   // sid에서의 인덱스
+        int count = 0;    // 1층에 배치된 1층 희망 학생 수
 
-        // Create a set of students who want the lower bunk
-        Set<Integer> wantLowerBunk = new HashSet<>();
-        for (int id : sfirst) {
-            wantLowerBunk.add(id);
-        }
+        // 방별로 배정
+        for (int r = 0; r < rooms; r++) {
+            int bedCount = Math.min(4, n - r * 4); // 현재 방의 학생 수 (최대 4명)
+            int firstFloorCapacity = Math.min(2, bedCount); // 현재 방에 1층에 배치할 수 있는 최대 인원
 
-        // Variable to keep track of the maximum number of students who can get the lower bunk
-        int maxLowerBunkWanted = 0;
+            int placedOnFirst = 0; // 이번 방에 1층 침대에 배치된 학생 수
 
-        // Process each room
-        for (int i = 0; i < k; i++) {
-            int startIndex = i * 4;
-            int endIndex = Math.min(startIndex + 4, n);
-            int[] roomStudents = Arrays.copyOfRange(sid, startIndex, endIndex);
-
-            // Count the number of students in this room who want the lower bunk
-            int lowerBunkWanted = 0;
-            for (int student : roomStudents) {
-                if (wantLowerBunk.contains(student)) {
-                    lowerBunkWanted++;
-                }
+            // 1층을 희망하는 학생들을 1층 침대에 배정
+            while (firstIdx < sfirst.length && placedOnFirst < firstFloorCapacity) {
+                placedOnFirst++;
+                firstIdx++;
             }
 
-            // Calculate the number of lower bunks that can be assigned
-            if (roomStudents.length >= 3) {
-                // Room has 3 or 4 students, we can assign 2 lower bunks
-                maxLowerBunkWanted += Math.min(lowerBunkWanted, 2);
-            } else {
-                // Room has 1 or 2 students, all can get lower bunks
-                maxLowerBunkWanted += lowerBunkWanted;
-            }
+            count += placedOnFirst;
+
+            // 남은 자리 학번 순으로 배치
+            sidIdx += bedCount;
         }
 
-        return maxLowerBunkWanted;
+        return count;
+    }
+
+    public static void main(String[] args) {
+        int[] sid1 = {201820793, 201969011, 202020202, 202299999, 202200000, 202232134, 202310039};
+        int[] sfirst1 = {201820793, 202020202, 202200000, 202232134, 202310039};
+        System.out.println(solution(sid1, sfirst1));
+
+        int[] sid2= {900000000, 900000001, 900000002, 900000003, 999999999};
+        int[] sfirst2 = {999999999};
+        System.out.println(solution(sid2, sfirst2));
     }
 }
